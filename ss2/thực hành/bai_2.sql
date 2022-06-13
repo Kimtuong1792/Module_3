@@ -26,5 +26,5 @@ name_teacher varchar(20),
 number_phone varchar(10)
 );
 ALTER TABLE mon_hoc ADD id_teacher varchar(20);
-ALTER TABLE mon_hoc ADD CONSTRAINT fk_magv FOREIGN KEY (id_teacher) REFERENCES giao_vien(id_teacher);
+ALTER TABLE mon_hoc ADD CONSTRAINT fk_magv FOREIGN KEY (id_teacher) REFERENCES giao_vien(id_teacher)student;
 
