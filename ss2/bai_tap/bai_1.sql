@@ -46,8 +46,12 @@ CREATE TABLE nha_cc(
 ma_ncc int primary key not null,
 ten_ncc varchar(50),
 dia_chi varchar(50),
-dien_thoai int unique,
-so_don_dh int,
-foreign key(so_don_dh) references don_DH(so_don_dh)
+foreign key(ma_ncc) references don_DH(so_don_dh)
+);
+create table so_dien_thoai(
+sdt varchar(10) primary key ,
+nguoi_so_huu varchar(100),
+ma_ncc int,
+foreign key (ma_ncc) references nha_cc(ma_ncc)
 );
 
