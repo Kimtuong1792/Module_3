@@ -23,11 +23,8 @@ insert into oder_detail values
 (2,5,4),
 (2,3,3);
 -- Hiển thị các thông tin  gồm oID, oDate, oPrice của tất cả các hóa đơn trong bảng Order
-select  oder.o_id, oder.o_date, sum(od_qty * p_price) as o_price
- from oder 
-  join oder_detail on oder_detail.o_id = oder.o_id
-  join product on product.p_id = oder_detail.p_id
- group by oder.o_id;
+select  oder.o_id, oder.o_date, o_total_price
+ from oder ;
 
  
  -- Hiển thị danh sách các khách hàng đã mua hàng, và danh sách sản phẩm được mua bởi các khách
@@ -45,10 +42,10 @@ select  oder.o_id, oder.o_date, sum(od_qty * p_price) as o_price
  having count(oder.c_id) = 0;
  -- Hiển thị mã hóa đơn, ngày bán và giá tiền của từng hóa đơn (giá một hóa đơn được tính bằng tổng giá bán của từng 
  -- loại mặt hàng xuất hiện trong hóa đơn. Giá bán của từng loại được tính = odQTY*pPrice)
- select oder_detail.o_id , oder.o_date, (od_qty * p_price) as total
+ select oder_detail.o_id , oder.o_date, sum(od_qty * p_price) as total
  from oder 
   join oder_detail on oder_detail.o_id = oder.o_id
-  join product on product.p_id = oder_detail.p_id;
- 
+  join product on product.p_id = oder_detail.p_id
+  group by oder.o_id;
  
  
