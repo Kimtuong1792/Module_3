@@ -54,45 +54,45 @@ from products
 where product_name = 'kẹo';
 
 -- Tạo view lấy về các thông tin: productCode, productName, productPrice, productStatus từ bảng products.
-create view thong_tin as
+create view information as
 select product_code, product_name, product_price, product_status
 from products;
 
 select *
-from thong_tin;
+from information;
 
 
 -- Tiến hành sửa đổi view
-insert into thong_tin(product_name, product_price, product_status) value ('điện thoại', 10000, true);
+insert into information(product_name, product_price, product_status) value ('điện thoại', 10000, true);
 
 -- tiến hành xoá view
-drop view thong_tin;
+drop view information;
 
 -- Tạo store procedure lấy tất cả thông tin của tất cả các sản phẩm trong bảng product
 delimiter //
-create procedure lay_tat_ca_thong_tin()
+create procedure all_information()
 begin
     select * from products;
 end;
 // delimiter ;
 
-call lay_tat_ca_thong_tin;
+call all_information;
 -- Tạo store procedure thêm một sản phẩm mới
 
 delimiter //
-create procedure them_thong_tin(p_id int, in p_code int, in p_name varchar(100), in p_price int, in p_amount int,
+create procedure add_information(p_id int, in p_code int, in p_name varchar(100), in p_price int, in p_amount int,
                                 in p_desciption varchar(100), in p_status boolean)
 begin
     insert into products values (p_id, p_code, p_name, p_price, p_amount, p_desciption, p_status);
 end//
 
-call them_thong_tin(9, 10, 'máy tính ', 100, 9, 'windows 10', true);
+call add_information(9, 10, 'máy tính ', 100, 9, 'windows 10', true);
 
-drop procedure them_thong_tin;
+drop procedure add_information;
 -- Tạo store procedure sửa thông tin sản phẩm theo id
 -- TẠO 1 CÁI ĐỂ HIỂU  -- my sql khong cho sửa 1 cái 
 delimiter //
-create procedure sua_san_pham(in id_sua int, in product_name_update varchar(100))
+create procedure edit(in id_sua int, in product_name_update varchar(100))
 begin
     set sql_safe_updates = 0;
     update products set product_name= product_name_update;
@@ -120,7 +120,7 @@ END//
 
 -- Tạo store procedure xoá sản phẩm theo id
 delimiter //
-create procedure xoa_san_pham(in id_delete int)
+create procedure delete_product(in id_delete int)
 begin
     set sql_safe_updates = 0;
     delete from products where id = id_delete;
@@ -129,5 +129,5 @@ end //
 
 
 delimiter ;
-call xoa_san_pham(2);
-call lay_tat_ca_thong_tin()
+call delete_product(2);
+call all_information()
