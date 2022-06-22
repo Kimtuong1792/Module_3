@@ -23,15 +23,7 @@ dan_vi varchar(10),
 trang_thai varchar(45) ,
 `status` int default 0
 );
-create table hop_dong_chi_tiet(
-ma_hop_dong_chi_tiet int primary key,
-ma_hop_dong int,
-ma_dich_vu_di_kem int,
-so_luong int,
-foreign key(ma_dich_vu_di_kem) references dich_vu_di_kem(ma_dich_vu_di_kem),
-foreign key(ma_hop_dong) references hop_dong(ma_hop_dong) ,
-`status` int default 0
-);
+
 
 create table nhan_vien(
 ma_nhan_vien int primary key,
@@ -95,7 +87,7 @@ foreign key(ma_loai_dich_vu)references loai_dich_vu(ma_loai_dich_vu) ,
 `status` int default 0
 );
 create table hop_dong(
-ma_hop_dong int ,
+ma_hop_dong int auto_increment,
 ngay_lam_hop_dong datetime,
 ngay_ket_thuc datetime,
 tien_dat_coc double,
@@ -106,6 +98,15 @@ primary key(ma_hop_dong),
 foreign key(ma_nhan_vien) references nhan_vien(ma_nhan_vien),
 foreign key(ma_khach_hang) references khach_hang(ma_khach_hang),
 foreign key(ma_dich_vu) references dich_vu (ma_dich_vu) ,
+`status` int default 0
+);
+create table hop_dong_chi_tiet(
+ma_hop_dong_chi_tiet int primary key,
+ma_hop_dong int,
+ma_dich_vu_di_kem int,
+so_luong int,
+foreign key(ma_dich_vu_di_kem) references dich_vu_di_kem(ma_dich_vu_di_kem),
+foreign key(ma_hop_dong) references hop_dong(ma_hop_dong) ,
 `status` int default 0
 );
 

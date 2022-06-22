@@ -5,7 +5,7 @@
  -- (những khách hàng nào chưa từng đặt phòng cũng phải hiển thị ra).
  
  select khach_hang.ma_khach_hang, khach_hang.ho_ten , loai_khach.ten_loai_khach , hop_dong.ma_hop_dong,
- dich_vu.ten_dich_vu, hop_dong.ngay_lam_hop_dong, hop_dong.ngay_ket_thuc,ifnull((dich_vu.chi_phi_thue + dich_vu_di_kem.gia * hop_dong_chi_tiet.so_luong),0)
+ dich_vu.ten_dich_vu, hop_dong.ngay_lam_hop_dong, hop_dong.ngay_ket_thuc,(dich_vu.chi_phi_thue + ifnull((dich_vu_di_kem.gia * hop_dong_chi_tiet.so_luong),0))
  as tong_tien 
  from khach_hang
  left join loai_khach on khach_hang.ma_loai_khach = loai_khach.ma_loai_khach
@@ -131,7 +131,7 @@ select nv.ma_nhan_vien from nhan_vien nv
 left join hop_dong hd on nv.ma_nhan_vien = hd.ma_nhan_vien
 where nv.ma_nhan_vien not in (
 select nv.ma_nhan_vien from nhan_vien nv
-right join hop_dong hd on nv.ma_nhan_vien = hd.ma_nhan_vien
+join hop_dong hd on nv.ma_nhan_vien = hd.ma_nhan_vien
 group by ma_nhan_vien)
 )temp);
 select nhan_vien.ma_nhan_vien , nhan_vien.ho_ten from nhan_vien where `status` = 1;
@@ -168,4 +168,69 @@ temp)
 select khach_hang.ma_khach_hang , khach_hang.ho_ten from khach_hang  where `status` = 1;
 
 -- 19.	Cập nhật giá cho các dịch vụ đi kèm được sử dụng trên 10 lần trong năm 2020 lên gấp đôi.
+update dich_vu_di_kem
+set gia = gia * 2  where dich_vu_di_kem.ma_dich_vu_di_kem in (
+ select * from (
+select dich_vu_di_kem.ma_dich_vu_di_kem 
+from dich_vu_di_kem
+join hop_dong_chi_tiet on dich_vu_di_kem.ma_dich_vu_di_kem = hop_dong_chi_tiet.ma_dich_vu_di_kem
+join hop_dong on hop_dong_chi_tiet.ma_hop_dong = hop_dong.ma_hop_dong
+where hop_dong_chi_tiet.so_luong >10 and year(hop_dong.ngay_lam_hop_dong) = 2020)temp);
+
+ -- 20.	Hiển thị thông tin của tất cả các nhân viên và khách hàng có trong hệ thống, 
+ -- thông tin hiển thị bao gồm id (ma_nhan_vien, ma_khach_hang), ho_ten, email, so_dien_thoai, ngay_sinh, dia_chi.
+ 
+ select ma_nhan_vien as id , ho_ten , email, so_dien_thoai, ngay_sinh, dia_chi
+ from nhan_vien
+ union all
+ select ma_khach_hang as id , ho_ten, email, so_dien_thoai, ngay_sinh, dia_chi
+ from khach_hang;
+ 
+-- 21.	Tạo khung nhìn có tên là v_nhan_vien để lấy được thông tin của tất cả các nhân viên có địa chỉ là “Đà Nẵng” 
+-- và đã từng lập hợp đồng cho một hoặc nhiều khách hàng bất kì với ngày lập hợp đồng là “12/12/2019”.
+
+create view v_nhan_vien as 
+select nhan_vien.ma_nhan_vien , nhan_vien.ho_ten , nhan_vien.dia_chi , hop_dong.ngay_lam_hop_dong
+from nhan_vien
+join hop_dong on nhan_vien.ma_nhan_vien = hop_dong.ma_nhan_vien
+where nhan_vien.dia_chi like '%Đà Nẵng' and hop_dong.ngay_lam_hop_dong = '2021-04-25'
+;
+select * from v_nhan_vien;
+drop view v_nhan_vien;
+
+-- 22.	Thông qua khung nhìn v_nhan_vien thực hiện cập nhật địa chỉ thành “Liên Chiểu” đối với tất cả các nhân viên được nhìn thấy bởi khung nhìn này.
+
+update  v_nhan_vien 
+set dia_chi = 'Quảng Trị';
+
+-- 23.	Tạo Stored Procedure sp_xoa_khach_hang dùng để xóa thông tin của một khách hàng nào đó với ma_khach_hang được truyền
+--  vào như là 1 tham số của sp_xoa_khach_hang.
+
+delimiter //
+create procedure sp_xoa_khach_hang(in ma_khach_hang_xoa int)
+begin
+    update khach_hang
+    set `status` = 1
+     where khach_hang.ma_khach_hang = ma_khach_hang_xoa;
+   
+end //
+delimiter ;
+ call sp_xoa_khach_hang(1);
+ select * from khach_hang where `status` = 1;
+ 
+ -- 24.	Tạo Stored Procedure sp_them_moi_hop_dong dùng để thêm mới vào bảng hop_dong với yêu cầu sp_them_moi_hop_dong
+ -- phải thực hiện kiểm tra tính hợp lệ của dữ liệu bổ sung, với nguyên tắc không được trùng khóa chính và đảm bảo toàn vẹn tham chiếu đến các bảng liên quan.
+ 
+ delimiter //
+create procedure sp_them_moi_hop_dong( in ngay_lam_hop_dong date, in ngay_ket_thuc date, in tien_dat_coc double, in ma_nhan_vien int ,
+                                in ma_khach_hang int, in ma_dich_vu int)
+                               
+begin
+    insert into hop_dong(ngay_lam_hop_dong, ngay_ket_thuc, tien_dat_coc, ma_nhan_vien , ma_khach_hang , ma_dich_vu) values (ngay_lam_hop_dong , ngay_ket_thuc , tien_dat_coc , ma_nhan_vien , ma_khach_hang , ma_dich_vu);
+end//
+delimiter ;
+
+call sp_them_moi_hop_dong('2020-12-08', '2020-12-08', 0, 3, 1, 3);
+
+
 
