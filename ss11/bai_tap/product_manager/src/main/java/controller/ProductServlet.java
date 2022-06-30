@@ -189,7 +189,7 @@ public class ProductServlet extends javax.servlet.http.HttpServlet {
         Double price = Double.parseDouble(request.getParameter("price"));
         String describe = request.getParameter("describe");
         String producer = request.getParameter("producer");
-        Product product = productService.searchByID(id);
+        Product product = productService.searchByID(id -1);
 
         RequestDispatcher dispatcher;
         if (product == null) {
