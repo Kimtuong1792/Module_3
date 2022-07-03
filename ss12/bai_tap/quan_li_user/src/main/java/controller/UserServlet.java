@@ -4,6 +4,8 @@ package controller;
 import model.User;
 import reponsitory.IUserRepository;
 import reponsitory.UserRepository;
+import service.IUserService;
+import service.UserServiceIMPL;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -13,15 +15,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "UserServlet", urlPatterns = "/user")
+@WebServlet(name = "UserServlet", urlPatterns ={ "/user" , "/" })
 public class UserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private IUserRepository useRepository;
+    private IUserService useRepository;
     static List<User> userList = new ArrayList<>();
 
     public void init() {
-        useRepository = new UserRepository();
+        useRepository = new UserServiceIMPL();
     }
+
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -37,11 +40,36 @@ public class UserServlet extends HttpServlet {
                 case "edit":
                     updateUser(request, response);
                     break;
+                case "delete":
+                    deleteModal(request, response);
+                    break;
+                default:
+                    listUser(request, response);
+                    break;
             }
         } catch (SQLException ex) {
             throw new ServletException(ex);
         }
 
+    }
+
+    private void deleteModal(HttpServletRequest request, HttpServletResponse response) {
+        int id = Integer.parseInt(request.getParameter("id"));
+        try {
+            useRepository.deleteUser(id);
+             request.setAttribute("mess" , " Da xoa thanh cong ");
+             List<User> userList = useRepository.selectAllUsers();
+             request.setAttribute("listUser" , userList);
+            try {
+                request.getRequestDispatcher("user/list.jsp").forward(request,response);
+            } catch (ServletException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -86,6 +114,7 @@ public class UserServlet extends HttpServlet {
     }
 
     private void searchByCountry(HttpServletRequest request, HttpServletResponse response) {
+
         String countrySearch = request.getParameter("countrySearch");
         userList = useRepository.searchByCountry(countrySearch);
         request.setAttribute("listUser", userList);

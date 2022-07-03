@@ -10,7 +10,7 @@ public interface ProductService {
     void update( Product product);
     void remove(int id);
     void view(int id);
-    List<Product> search(String name);
+
     Product searchByID(int id);
     void save(Product product);
 }

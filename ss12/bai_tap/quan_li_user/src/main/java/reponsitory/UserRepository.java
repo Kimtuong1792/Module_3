@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository implements IUserRepository {
-    private String jdbcURL = "jdbc:mysql://localhost:3306/demos?useSSL=false";
+    private String jdbcURL = "jdbc:mysql://localhost:3306/demos";
     private String jdbcUsername = "root";
     private String jdbcPassword = "12345678";
     static List<User> listUser = new ArrayList<>();
